@@ -1,0 +1,143 @@
+﻿@page "/connect"
+
+<PageTitle>Connect</PageTitle>
+
+<h1>Connect to Warhorn</h1>
+Please log into Warhorn to access features:
+
+@if (!connectionStatus)
+{
+    <button class="btn btn-primary" @onclick="InitiateLogonAsync" id="connectBUTTON">Connect</button>
+}else{
+    <button class="btn btn-primary" @onclick="InitiateLogoffAsync" id="disconnectBUTTON">Disconnect</button>
+}
+
+<table>
+    <tr>
+        <td>Status:</td>
+        <td id="statusDisplayTD" style="background-color:@ConnectionStatusColour;">@ConnectionStatusText</td>
+    </tr>
+</table>
+
+<!--Inject shared Httpclient, to avoid consuming a new socket per client-->
+@inject HttpClient Http
+@code {
+    private string ClientId = "";
+    private string AppToken = "";
+    private bool connectionStatus = false;
+
+    private void InitiateLogon()
+    {
+        try
+        {
+            //Request
+            String requestUrl = "https://warhorn.net";
+            Dictionary<string, string> postValues = new Dictionary<string, string>();
+            postValues.Add("client_id", ClientId);
+            postValues.Add("client_secret", AppToken);
+            postValues.Add("grant_type", "client_credentials");
+            HttpContent httpContent = new FormUrlEncodedContent(postValues);
+            Task<HttpResponseMessage> responseTask = Http.PostAsync(requestUrl, httpContent);
+            responseTask.Wait();
+            if (responseTask.IsCompletedSuccessfully)
+            {
+                HttpResponseMessage responseMessage = responseTask.Result;
+                Task<string> responseMessageTask = responseMessage.Content.ReadAsStringAsync();
+                responseMessageTask.Wait();
+                if (responseMessageTask.IsCompleted)
+                {
+                    string message = responseMessageTask.Result;
+                    Console.WriteLine("Auth POST response: {0}", message);
+                }
+                else
+                {
+                    Console.WriteLine("Failed to retrieve message contents from Auth POST.");
+                }
+            }
+            else
+            {
+                if (responseTask.Exception != null)
+                {
+                    Console.WriteLine("HTTP POST Auth request threw exception: {0}", responseTask.Exception.Message);
+                }
+                else
+                {
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Unhandled exception in Auth: {0}", ex.Message);
+        }
+
+        return;
+    }
+
+    private async void InitiateLogonAsync()
+    {
+        try
+        {
+            //Request
+            String requestUrl = "https://warhorn.net/graphql";
+            Dictionary<string, string> postValues = new Dictionary<string, string>();
+            postValues.Add("client_id", ClientId);
+            postValues.Add("client_secret", AppToken);
+            postValues.Add("grant_type", "client_credentials");
+            HttpContent httpContent = new FormUrlEncodedContent(postValues);
+            HttpResponseMessage response = await Http.PostAsync(requestUrl, httpContent);
+            if (response.IsSuccessStatusCode)
+            {
+                string message = response.Content.ToString() ?? "";
+                Console.WriteLine("Auth POST response: {0}", message);
+                SetConnectionStatus(true);
+            }
+            else
+            {
+                Console.WriteLine("HTTP POST Auth request threw exception: {0}", response.Content.ToString());
+                SetConnectionStatus(false);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Unhandled exception in Auth: {0}", ex.Message);
+            SetConnectionStatus(false);
+        }
+
+        return;
+    }
+
+    private async void InitiateLogoffAsync()
+    {
+        SetConnectionStatus(false);
+    }
+
+    private void SetConnectionStatus(bool status)
+    {
+        connectionStatus = status;
+        this.StateHasChanged();
+    }
+    private string ConnectionStatusText
+    {
+        get
+        {
+            if (connectionStatus)
+            {
+                return "CONNECTED";
+            }
+            return "DISCONNECTED";
+        }
+    }
+    private string ConnectionStatusColour
+    {
+        get
+        {
+            if (connectionStatus)
+            {
+                return "LightGreen";
+            }
+            return "LightCoral";
+        }
+    }
+
+}
