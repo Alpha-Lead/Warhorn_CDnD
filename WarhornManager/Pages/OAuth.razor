@@ -1,0 +1,22 @@
+﻿@page "/oauth"
+
+<PageTitle>User Authentication</PageTitle>
+<h1>Warhorn Authentication - OAuth 2.0</h1>
+<p>Awaiting re-direct...</p>
+
+@if ((AuthCode ?? "").Length > 0)
+{
+    <p>AuthCode: @AuthCode</p>
+}
+
+@code{
+    [SupplyParameterFromQuery(Name = "code")]
+    [Parameter]
+    public string? AuthCode { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        AuthCode = AuthCode ?? "";
+    }
+    
+}

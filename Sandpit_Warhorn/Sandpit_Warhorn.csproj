@@ -1,14 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>a7cb33e9-8e6e-4b97-91d5-16cf41d690f1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="7.6.1" />
+    <PackageReference Include="GraphQL.Client" Version="6.0.2" />
+    <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.58.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Warhorn.API.Types\Warhorn.API.Types.csproj" />
   </ItemGroup>
 
 </Project>

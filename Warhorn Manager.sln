@@ -4,10 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarhornManager", "WarhornManager\WarhornManager.csproj", "{26F76937-5DCD-4316-8DD9-D729A92A050C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{30643F9F-A30F-464B-9ADA-ECCB53E30B99} = {30643F9F-A30F-464B-9ADA-ECCB53E30B99}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandpit_Warhorn", "Sandpit_Warhorn\Sandpit_Warhorn.csproj", "{BDCF8354-65E9-41FE-9A27-B987D0DD2EB5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{30643F9F-A30F-464B-9ADA-ECCB53E30B99} = {30643F9F-A30F-464B-9ADA-ECCB53E30B99}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Warhorn.API.Types", "Warhorn.API.Types\Warhorn.API.Types.csproj", "{30643F9F-A30F-464B-9ADA-ECCB53E30B99}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Warhorn.API.Types", "Warhorn.API.Types\Warhorn.API.Types.csproj", "{30643F9F-A30F-464B-9ADA-ECCB53E30B99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

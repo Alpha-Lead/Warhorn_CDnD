@@ -1,4 +1,7 @@
 ﻿@page "/connect"
+<!--Inject interface to use 3rd party local storage NuGet package-->
+@inject ILocalStorageService _localstorage;
+@namespace WarhornManager
 
 <PageTitle>Connect</PageTitle>
 
@@ -22,10 +25,32 @@ Please log into Warhorn to access features:
 <!--Inject shared Httpclient, to avoid consuming a new socket per client-->
 @inject HttpClient Http
 @code {
-    private string ClientId = "";
-    private string AppToken = "";
+    private StorageCrate data = new StorageCrate();
+    private string localStorageKey = "storageCrateData";
     private bool connectionStatus = false;
 
+    //Run when built, to fetch state data from local storage
+    protected override async Task OnInitializedAsync()
+    {
+        string? loadExistingToken = await _localstorage.GetItemAsStringAsync(localStorageKey);
+        if (loadExistingToken != null)
+        {
+            data = new StorageCrate(loadExistingToken);
+        }
+        else
+        {
+            data = new StorageCrate();
+            data.ClientId = "";
+            data.AppToken = "";
+        }
+    }
+
+    protected async Task UpdateLocalData()
+    {
+        await _localstorage.SetItemAsStringAsync(localStorageKey, data.EncodedData);
+    }
+
+    #region "Manual logon"
     private void InitiateLogon()
     {
         try
@@ -33,8 +58,8 @@ Please log into Warhorn to access features:
             //Request
             String requestUrl = "https://warhorn.net";
             Dictionary<string, string> postValues = new Dictionary<string, string>();
-            postValues.Add("client_id", ClientId);
-            postValues.Add("client_secret", AppToken);
+            postValues.Add("client_id", data.ClientId);
+            postValues.Add("client_secret", data.AppToken);
             postValues.Add("grant_type", "client_credentials");
             HttpContent httpContent = new FormUrlEncodedContent(postValues);
             Task<HttpResponseMessage> responseTask = Http.PostAsync(requestUrl, httpContent);
@@ -81,8 +106,8 @@ Please log into Warhorn to access features:
             //Request
             String requestUrl = "https://warhorn.net/graphql";
             Dictionary<string, string> postValues = new Dictionary<string, string>();
-            postValues.Add("client_id", ClientId);
-            postValues.Add("client_secret", AppToken);
+            postValues.Add("client_id", data.ClientId);
+            postValues.Add("client_secret", data.AppToken);
             postValues.Add("grant_type", "client_credentials");
             HttpContent httpContent = new FormUrlEncodedContent(postValues);
             HttpResponseMessage response = await Http.PostAsync(requestUrl, httpContent);
@@ -107,10 +132,31 @@ Please log into Warhorn to access features:
         return;
     }
 
-    private async void InitiateLogoffAsync()
+    private void InitiateLogoffAsync()
     {
         SetConnectionStatus(false);
     }
+    #endregion "Manual Logon"
+
+    #region "OAuth2"
+    //Authorize Service
+    //We send Warhorn ClienID and Scope
+
+    //Request Permission Dialog
+    //Warhorn shows user login screen
+    //User sends approval to Warhorn
+
+    //Permission granted
+    //Warhorn sends us authorizationCode
+
+    //Get Access Token
+    //We send warhorn AuthorizationCode with ClientId and ClientSecret (Our secret with Warhorhn)
+
+    //Access Token
+    //Warhorn validates, then sends us AccessToken
+
+    //Use access token to perform actions on warhorn
+    #endregion
 
     private void SetConnectionStatus(bool status)
     {
@@ -140,4 +186,6 @@ Please log into Warhorn to access features:
         }
     }
 
+
+    
 }
