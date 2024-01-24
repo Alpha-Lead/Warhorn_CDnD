@@ -1,0 +1,27 @@
+﻿@page "/query"
+
+<PageTitle>GraphQL Query Tool</PageTitle>
+<h3>GraphQL Query Tool</h3>
+
+<table>
+    <tr>
+        <th>User Query</th>
+        <th>Results</th>
+    </tr>
+    <tr>
+        <td>
+            <InputTextArea/>
+        </td>
+        <td>
+            <textarea/>
+        </td>
+    </tr>
+</table>
+<button class="btn btn-primary" @onclick="QueryEditorExecute">RunQuery</button>
+
+@code {
+    private void QueryEditorExecute()
+    {
+        
+    }
+}

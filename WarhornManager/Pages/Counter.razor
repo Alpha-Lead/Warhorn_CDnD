@@ -1,4 +1,6 @@
 ﻿@page "/counter"
+<!--Inject interface to use 3rd party local storage NuGet package-->
+@inject ILocalStorageService LocalStorage;
 
 <PageTitle>Counter</PageTitle>
 
@@ -11,8 +13,20 @@
 @code {
     private int currentCount = 0;
 
-    private void IncrementCount()
+    private async void IncrementCount()
     {
         currentCount++;
+        await LocalStorage.SetItemAsStringAsync("counterVal", currentCount.ToString());
     }
+
+    private async Task GetCount()
+    {
+        int.TryParse(await LocalStorage.GetItemAsync<string>("counterVal"), out currentCount);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCount();
+    }
+
 }

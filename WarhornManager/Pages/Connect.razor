@@ -1,6 +1,10 @@
 ﻿@page "/connect"
+<!--Inject shared Httpclient, to avoid consuming a new socket per client-->
+@inject HttpClient Http
 <!--Inject interface to use 3rd party local storage NuGet package-->
-@inject ILocalStorageService _localstorage;
+@inject ILocalStorageService LocalStorage;
+<!--Inject StorageCrate shared object (for state management)-->
+@inject StorageCrate StorageCrate;
 @namespace WarhornManager
 
 <PageTitle>Connect</PageTitle>
@@ -22,32 +26,20 @@ Please log into Warhorn to access features:
     </tr>
 </table>
 
-<!--Inject shared Httpclient, to avoid consuming a new socket per client-->
-@inject HttpClient Http
+
 @code {
-    private StorageCrate data = new StorageCrate();
     private string localStorageKey = "storageCrateData";
     private bool connectionStatus = false;
 
     //Run when built, to fetch state data from local storage
     protected override async Task OnInitializedAsync()
     {
-        string? loadExistingToken = await _localstorage.GetItemAsStringAsync(localStorageKey);
-        if (loadExistingToken != null)
-        {
-            data = new StorageCrate(loadExistingToken);
-        }
-        else
-        {
-            data = new StorageCrate();
-            data.ClientId = "";
-            data.AppToken = "";
-        }
+        await StorageCrate.LoadAsync(LocalStorage, localStorageKey);
     }
 
     protected async Task UpdateLocalData()
     {
-        await _localstorage.SetItemAsStringAsync(localStorageKey, data.EncodedData);
+        await StorageCrate.SaveAsync(LocalStorage, localStorageKey);
     }
 
     #region "Manual logon"
@@ -58,8 +50,8 @@ Please log into Warhorn to access features:
             //Request
             String requestUrl = "https://warhorn.net";
             Dictionary<string, string> postValues = new Dictionary<string, string>();
-            postValues.Add("client_id", data.ClientId);
-            postValues.Add("client_secret", data.AppToken);
+            postValues.Add("client_id", StorageCrate.ClientId);
+            postValues.Add("client_secret", StorageCrate.AppToken);
             postValues.Add("grant_type", "client_credentials");
             HttpContent httpContent = new FormUrlEncodedContent(postValues);
             Task<HttpResponseMessage> responseTask = Http.PostAsync(requestUrl, httpContent);
@@ -106,8 +98,8 @@ Please log into Warhorn to access features:
             //Request
             String requestUrl = "https://warhorn.net/graphql";
             Dictionary<string, string> postValues = new Dictionary<string, string>();
-            postValues.Add("client_id", data.ClientId);
-            postValues.Add("client_secret", data.AppToken);
+            postValues.Add("client_id", StorageCrate.ClientId);
+            postValues.Add("client_secret", StorageCrate.AppToken);
             postValues.Add("grant_type", "client_credentials");
             HttpContent httpContent = new FormUrlEncodedContent(postValues);
             HttpResponseMessage response = await Http.PostAsync(requestUrl, httpContent);
