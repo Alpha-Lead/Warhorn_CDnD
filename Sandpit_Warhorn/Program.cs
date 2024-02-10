@@ -170,4 +170,25 @@ if (gqlResponse.Errors!= null)
 //Console.WriteLine("{0}: {1}", gqlResponse.Data);
 
 
+
+//Retrieve staff notes for a player registered in an event
+/* RETURN TYPE: REGISTRATION
+query {
+  eventRegistration(email: "<email address>", slug: "<event name>")
+  {
+    event {
+      title
+    }
+    id
+    staffNotes
+    registrant{
+      id
+      name
+    }
+  }
+}
+ */
+
+
+
 Console.WriteLine("==END==");
