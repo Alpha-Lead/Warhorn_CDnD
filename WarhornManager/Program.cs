@@ -9,6 +9,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 //HttpClient for use
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+//State Management with StorageCrate class (in memory, for user; dependancy injected)
+builder.Services.AddScoped<StorageCrate>();
 //3rd party NuGet package for local storage
 builder.Services.AddBlazoredLocalStorage();
 

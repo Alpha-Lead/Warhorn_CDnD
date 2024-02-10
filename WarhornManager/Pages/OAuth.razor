@@ -1,4 +1,12 @@
 ﻿@page "/oauth"
+<!--Inject interface to use 3rd party local storage NuGet package-->
+@inject ILocalStorageService LocalStorage;
+<!--Inject StorageCrate shared object (for state management)-->
+@inject StorageCrate StorageCrate;
+<!--Inject Navigation Manager to allow redirect/navigation-->
+@inject NavigationManager UriHelper
+
+@namespace WarhornManager
 
 <PageTitle>User Authentication</PageTitle>
 <h1>Warhorn Authentication - OAuth 2.0</h1>
@@ -14,9 +22,14 @@
     [Parameter]
     public string? AuthCode { get; set; }
 
-    protected override void OnParametersSet()
+    private string localStorageKey = "storageCrateData";
+
+    protected override async Task OnInitializedAsync()
     {
-        AuthCode = AuthCode ?? "";
+        await StorageCrate.LoadAsync(LocalStorage, localStorageKey);
+        StorageCrate.AccessToken = AuthCode ?? "";
+        await StorageCrate.SaveAsync(LocalStorage, localStorageKey);
+        UriHelper.NavigateTo("connect");
     }
     
 }

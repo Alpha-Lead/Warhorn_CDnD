@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -23,19 +26,26 @@ namespace WarhornManager
         }
         public StorageCrate(string inData)
         {
-            XmlSerializer serializer = new(typeof(StorageCrateData));
+            this.data = StorageCrateDataFromXmlString(inData);
+        }
+
+        private StorageCrateData StorageCrateDataFromXmlString(string inData)
+        {
+            //XmlSerializer serializer = new(typeof(StorageCrateData));
+            DataContractJsonSerializer serializer = new(typeof(StorageCrateData));
             using MemoryStream stream = new(Convert.FromBase64String(inData));
-            StorageCrateData? tempData = (StorageCrateData?)serializer.Deserialize(stream);
+            //StorageCrateData? tempData = (StorageCrateData?)serializer.Deserialize(stream);
+            StorageCrateData? tempData = (StorageCrateData?)serializer.ReadObject(stream);
+            stream.Close();
             if (tempData != null)
             {
-                this.data = tempData;
+                return tempData;
             }
             else
             {
                 Console.Error.WriteLine("Failed to decode StorageCrateDate from XML base64 encoding");
-                this.data = new StorageCrateData();
+                return new StorageCrateData();
             }
-            stream.Close();
         }
         #endregion
 
@@ -58,6 +68,46 @@ namespace WarhornManager
         }
         #endregion
 
+        #region "Local Storage"
+        public async Task<ushort> LoadAsync(Blazored.LocalStorage.ILocalStorageService localStorageService, string localStorageKey)
+        {
+            try
+            {
+                string? loadExistingToken = await localStorageService.GetItemAsStringAsync(localStorageKey);
+                if (loadExistingToken == null)
+                {
+                    Console.WriteLine("Attempted to load local StorageCrate: None found");
+                    return 2;
+                }
+                else
+                {
+                    this.data = StorageCrateDataFromXmlString(loadExistingToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Error reading StorageCrate from local storage");
+                Console.Error?.WriteLine(ex.Message);
+                return 1;
+            }
+            return 0;
+        }
+        public async Task<int> SaveAsync(Blazored.LocalStorage.ILocalStorageService localStorageService, string localStorageKey)
+        {
+            try
+            {
+                await localStorageService.SetItemAsStringAsync(localStorageKey, this.EncodedData);
+            }
+            catch (Exception ex)    
+            {
+                Console.Error.WriteLine("Error writing StorageCrate to local storage");
+                Console.Error?.WriteLine(ex.Message);
+                return 1;
+            }
+            return 0;
+        }
+        #endregion
+
         /// <summary>
         /// Data contents as a serialized base64 string.
         /// </summary>
@@ -67,9 +117,11 @@ namespace WarhornManager
             {
                 if (this.data != null)
                 {
-                    XmlSerializer serializer = new(typeof(StorageCrateData));
+                    //XmlSerializer serializer = new(typeof(StorageCrateData)); //Errors if StorageCrateData is Private
+                    DataContractJsonSerializer serializer = new(typeof(StorageCrateData));
                     using MemoryStream stream = new();
-                    serializer.Serialize(stream, this.data);
+                    //serializer.Serialize(stream, this.data);
+                    serializer.WriteObject(stream, this.data);
                     return Convert.ToBase64String(stream.ToArray());
                 }
                 else
@@ -89,21 +141,31 @@ namespace WarhornManager
         }
 
         #region "Data containing class"
+        //Using DataContract and DataContractJsonSerializer over XmlSerializer so this class can remain private
+        [DataContract]
         private class StorageCrateData
         {
+            [DataMember]
             public StorageCrateState State = StorageCrateState.initial;
+            [DataMember]
             public DateTime LastUpdate;
+            [DataMember]
             public string ClientId = "";
+            [DataMember]
             public string AppToken = "";
+            [DataMember]
             [XmlElementAttribute(IsNullable = false)]
             public string? AccessToken;
 
+            [DataMember]
             [XmlElementAttribute(IsNullable = false)]
             public List<Warhorn.API.Types.User>? Players;
 
+            [DataMember]
             [XmlElementAttribute(IsNullable = false)]
             public List<Warhorn.API.Types.Session>? Sessions;
 
+            [DataMember]
             [XmlElementAttribute(IsNullable = false)]
             public List<Warhorn.API.Types.Event>? Events;
         }
