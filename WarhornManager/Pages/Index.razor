@@ -1,4 +1,8 @@
 ﻿@page "/"
+<!--Inject interface to use 3rd party local storage NuGet package-->
+@inject ILocalStorageService LocalStorage;
+<!--Inject StorageCrate shared object (for state management)-->
+@inject StorageCrate StorageCrate;
 
 <PageTitle>Index</PageTitle>
 
@@ -6,4 +10,34 @@
 
 Welcome to the Warhorn Manager tool, built for the <em>Adelaide Community D&D</em> team.
 
+@if ((EventReferal ?? "").Length > 0)
+{
+    <p>Event: @EventReferal</p>
+}
+
 <SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+
+    [SupplyParameterFromQuery(Name = "event")]
+    [Parameter]
+    public string? EventReferal { get; set; }
+
+    private string localStorageKey = "storageCrateData";
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Process event if passed in URL
+        await StorageCrate.LoadAsync(LocalStorage, localStorageKey);
+        if (EventReferal != null)
+        {
+            StorageCrate.SetContext("event", EventReferal);
+        }
+        else
+        {
+            EventReferal = StorageCrate.RetrieveContext("event");
+        }
+        await StorageCrate.SaveAsync(LocalStorage, localStorageKey);
+    }
+
+}

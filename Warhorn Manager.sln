@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarhornManager", "WarhornManager\WarhornManager.csproj", "{26F76937-5DCD-4316-8DD9-D729A92A050C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{30643F9F-A30F-464B-9ADA-ECCB53E30B99} = {30643F9F-A30F-464B-9ADA-ECCB53E30B99}
+		{EBA161DB-E1E5-4CF0-A7EC-F3C786217F6E} = {EBA161DB-E1E5-4CF0-A7EC-F3C786217F6E}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandpit_Warhorn", "Sandpit_Warhorn\Sandpit_Warhorn.csproj", "{BDCF8354-65E9-41FE-9A27-B987D0DD2EB5}"
@@ -14,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandpit_Warhorn", "Sandpit_
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Warhorn.API.Types", "Warhorn.API.Types\Warhorn.API.Types.csproj", "{30643F9F-A30F-464B-9ADA-ECCB53E30B99}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorMonaco", "BlazorMonaco\BlazorMonaco.csproj", "{EBA161DB-E1E5-4CF0-A7EC-F3C786217F6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +36,10 @@ Global
 		{30643F9F-A30F-464B-9ADA-ECCB53E30B99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30643F9F-A30F-464B-9ADA-ECCB53E30B99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30643F9F-A30F-464B-9ADA-ECCB53E30B99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBA161DB-E1E5-4CF0-A7EC-F3C786217F6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBA161DB-E1E5-4CF0-A7EC-F3C786217F6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBA161DB-E1E5-4CF0-A7EC-F3C786217F6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBA161DB-E1E5-4CF0-A7EC-F3C786217F6E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

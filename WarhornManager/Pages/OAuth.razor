@@ -22,12 +22,26 @@
     [Parameter]
     public string? AuthCode { get; set; }
 
+    [SupplyParameterFromQuery(Name = "event")]
+    [Parameter]
+    public string? EventReferal { get; set; }
+
     private string localStorageKey = "storageCrateData";
 
     protected override async Task OnInitializedAsync()
     {
         await StorageCrate.LoadAsync(LocalStorage, localStorageKey);
+        //Store authentication token if passed in URL
         StorageCrate.AccessToken = AuthCode ?? "";
+        //Process event if passed in URL
+        if (EventReferal != null)
+        {
+            StorageCrate.SetContext("event", EventReferal);
+        }
+        else
+        {
+            EventReferal = StorageCrate.RetrieveContext("event");
+        }
         await StorageCrate.SaveAsync(LocalStorage, localStorageKey);
         UriHelper.NavigateTo("connect");
     }

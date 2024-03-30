@@ -2,6 +2,29 @@
 @inject IJSRuntime jsRuntime
 
 <PageTitle>GraphQL Query Tool</PageTitle>
+
+<style>
+    /* For all editor instances */
+    /*
+        .monaco-editor-container {
+            height: 200px;
+        }
+        */
+
+    /* CSS Class */
+    .monaco-editor-reports {
+        height: 100%;
+    }
+
+    /* specific to a single instance */
+    /*
+        #my-editor-instance-id-01 {
+            height: 300px;
+        }
+        */
+
+</style>
+
 <h3>GraphQL Query Tool</h3>
 
 <table>
@@ -23,10 +46,21 @@
         </td>
     </tr>
 </table>
+
+<WarhornManager.Components.ToggleOption GroupInfo="@ThemeOptions" />
+<div name="codeEditorPanel" style="height:250px; border-block:dotted; border-block-color:slategray">
+    <StandaloneCodeEditor Id="my-editor-instance-id-01"
+                          ConstructionOptions="EditorConstructionOptions2"
+                          CssClass="monaco-editor-reports" />
+</div>
 <button class="btn btn-primary" @onclick="QueryEditorExecute">RunQuery</button>
 
 @code {
-    
+    protected async override void OnInitialized()
+    {
+        ThemeOptions.PropertyChanged += Theme_PropertyChanged;
+        ThemeOptions.SelectedOption = "Light";
+    }
 
     private string inputText;
     private string resultsText;
@@ -40,6 +74,51 @@
     private void /*async Task*/ HandleOnChange(ChangeEventArgs args)
     {
         //Console.WriteLine(resultsText);
+    }
+
+    private String reportCodeValue =
+    "query {" + "\n\t" +
+    "eventRegistration(email: \"<email address>\", slug: \"<event name>\")" + "\n\t" +
+    "{" + "\n\t\t" +
+    "event {" + "\n\t\t\t" +
+    "title " + "\n\t\t" +
+    "}" + "\n\t\t" +
+    "id" + "\n\t\t" +
+    "staffNotes" + "\n\t\t" +
+    "registrant{" + "\n\t\t\t" +
+    "id" + "\n\t\t\t" +
+    "name" + "\n\t\t" +
+    "}" + "\n\t" +
+    "}" + "\n" +
+    "}";
+
+    private WarhornManager.Data.Components.ToggleOptionGroupInfo ThemeOptions = new WarhornManager.Data.Components.ToggleOptionGroupInfo()
+        {
+            Options = new string[] { "Light", "Dark" }
+        };
+
+    private void Theme_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (ThemeOptions.SelectedOption == "Light")
+        {
+
+        }
+        else if (ThemeOptions.SelectedOption == "Light")
+        {
+            Console.WriteLine("dark");
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private StandaloneEditorConstructionOptions EditorConstructionOptions2(StandaloneCodeEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+            {
+                AutomaticLayout = true,
+                Language = "graphql",
+                Value = reportCodeValue
+            };
     }
 
     #region "Editor"

@@ -1,6 +1,11 @@
 ﻿@page "/reports"
+<!--Inject interface to use 3rd party local storage NuGet package-->
+@inject ILocalStorageService LocalStorage;
+<!--Inject StorageCrate shared object (for state management)-->
+@inject StorageCrate StorageCrate;
 
 <PageTitle>Reports</PageTitle>
+
 
 <h1>Reports</h1>
 
@@ -8,6 +13,53 @@
 
 
 
+<table style="width=100%; minwidth=250px">
+	<tr>
+		<th style="width:30%">Reports</th>
+		<th style="width:70%; text-align:right"><button disabled>Run Report</button></th>
+	</tr>
+	<tr>
+		<td style="align-content:top">
+			LIST OF REPORTS <br/>
+
+			<input type="datetime-local" />
+			<InputCheckbox @bind-Value="inputBool" />
+			<InputDate @bind-Value="inputDtTm" />
+			<InputNumber @bind-Value="inputNum" />
+		</td>
+		<td>
+			
+		</td>
+	</tr>
+</table>
+
+
 @code {
-    
+	[SupplyParameterFromQuery(Name = "event")]
+	[Parameter]
+	public string? EventReferal { get; set; }
+
+	private string localStorageKey = "storageCrateData";
+
+	public DateTime inputDtTm;
+	public bool inputBool;
+	public int inputNum;
+
+	protected async override void OnInitialized()
+	{
+		//Process event if passed in URL
+		await StorageCrate.LoadAsync(LocalStorage, localStorageKey);
+		if (EventReferal != null)
+		{
+			StorageCrate.SetContext("event", EventReferal);
+		}
+		else
+		{
+			EventReferal = StorageCrate.RetrieveContext("event");
+		}
+		await StorageCrate.SaveAsync(LocalStorage, localStorageKey);
+
+	}
+
+	
 }

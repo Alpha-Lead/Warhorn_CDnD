@@ -1,0 +1,16 @@
+﻿.monaco-editor-reports { /* for a specific editor instance */
+    height: 100vh;
+    border-block: solid;
+    border-block-color: rebeccapurple
+}
+
+
+
+.monaco-editor-container { /* for all editor instances */
+    height: 200px;
+}
+
+
+#my-editor-instance-id-01 {
+    // for a specific editor instance height: 300px;
+}

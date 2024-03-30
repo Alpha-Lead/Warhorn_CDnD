@@ -29,7 +29,7 @@ namespace WarhornManager
             this.data = StorageCrateDataFromXmlString(inData);
         }
 
-        private StorageCrateData StorageCrateDataFromXmlString(string inData)
+        private static StorageCrateData StorageCrateDataFromXmlString(string inData)
         {
             //XmlSerializer serializer = new(typeof(StorageCrateData));
             DataContractJsonSerializer serializer = new(typeof(StorageCrateData));
@@ -65,6 +65,25 @@ namespace WarhornManager
         {
             get { return this.data.AccessToken ?? ""; }
             set { this.data.AccessToken = value; }
+        }
+
+        public string? RetrieveContext(string key)
+        {
+            if (this.data.Context == null) return null;
+            if (data.Context.TryGetValue(key, out string? value))
+            {
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public void SetContext(string key, string value)
+        {
+            this.data.Context ??= new Dictionary<string, string>();
+            this.data.Context[key] = value;
+            return;
         }
         #endregion
 
@@ -156,6 +175,9 @@ namespace WarhornManager
             [DataMember]
             [XmlElementAttribute(IsNullable = false)]
             public string? AccessToken;
+
+            [DataMember]
+            public Dictionary<string, string>? Context = new();
 
             [DataMember]
             [XmlElementAttribute(IsNullable = false)]
