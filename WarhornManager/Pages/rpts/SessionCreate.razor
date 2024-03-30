@@ -1,0 +1,111 @@
+﻿@using GraphQL
+<!--Inject interface to use 3rd party local storage NuGet package-->
+@inject ILocalStorageService LocalStorage;
+<!--Inject StorageCrate shared object (for state management)-->
+@inject StorageCrate StorageCrate;
+
+<h3>Create Session:</h3>
+
+<label>Start Date/Time:</label>
+<input type="datetime-local" id="startDtTm" />
+<br />
+<label>Repeating?</label>
+<input type="checkbox" id="repeatingCkBx" checked="@showRepeatChecked" @onchange="@((args) => { showRepeatChecked = (bool) (args.Value ?? false); Console.WriteLine(showRepeatChecked ? "Show" : "Hide"); } )" />
+<div id="repeatControlDiv" style="@(showRepeatChecked ? "display:block" : "display:none")">
+    <label>Repetitions:</label>
+    <input type="number" id="repeatCount" value="@repetitionCount"/>
+    <br />
+</div>
+<table>
+    <tr>
+        <th>Session Type</th>
+        <th>Number</th>
+    </tr>
+    @for(int i = 0; i < adventures.Count; i++)
+    {
+        <tr>
+            <td>@adventures.Keys.ToList()[i]</td>
+            <td><input type="number" id="@(String.Concat(@i, "_repeatCount"))" value="0" /></td>
+        </tr>
+    }
+</table>
+<br/>
+<button id="runSubmitBtn" @if(disableRunSubmit) { disabled } )>Run Report</button>
+
+@code {
+    //Form defaults
+    protected bool showRepeatChecked = true;
+    protected bool disableRunSubmit = true;
+    protected int repetitionCount = 1;
+    protected Dictionary<string, string> adventures = new Dictionary<string, string>()
+    {
+        {"A Tier 1 Table", "U2NlbmFyaW8tNzk2ODI=" },
+        {"A Tier 1 Table (DM needed)","U2NlbmFyaW8tNzk2ODE="},
+        {"A Tier 2 Table","U2NlbmFyaW8tNzk2ODQ="},
+        {"A Tier 2 Table (DM Needed)", "U2NlbmFyaW8tNzk2ODM="},
+        {"An Introductory DM Table","RXZlbnRTZXNzaW9uLTQ4NDczMQ=="},
+        {"Painting Day - Miniatures and Terrain", "U2NlbmFyaW8tODAwODc="}
+    };
+
+
+    private string localStorageKey = "storageCrateData";
+    protected override async Task OnInitializedAsync()
+    {
+        await StorageCrate.LoadAsync(LocalStorage, localStorageKey);
+        if (String.IsNullOrWhiteSpace(StorageCrate.AccessToken))
+        {
+            //Not logged in
+        }
+        if (StorageCrate.HasContext("event") || String.IsNullOrWhiteSpace(StorageCrate.RetrieveContext("event")))
+        {
+            //Needs event context
+        }
+    }
+
+
+    protected string CreateSession(string clientMutationId, string eventId, DateTime startTime, DateTime endTime, string timezone, string venueId)
+    {
+        GraphQLRequest gqlRequest = new GraphQLRequest()
+            {
+                Query = @"
+mutation {
+  createSlot(input: {
+    clientMutationId: $clientMutationId,
+    eventId: $eventId,
+    startsAt: $strtDtTm,
+    endsAt: $endDtTm,
+    timezone: $timeZone,
+    venueId: $venueId
+  })
+  {
+    clientMutationId,
+    errors{
+      message,
+      path
+    },
+    slot{
+      id,
+      startsAt,
+      endsAt,
+      event{
+        id,
+        title
+      }
+    }
+  }
+}",
+                Variables = new Dictionary<string, string>() 
+                    { 
+                        { "$clientMutationId", clientMutationId },
+                        { "$eventId", eventId },
+                        { "$strtDtTm", startTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFzzz") },
+                        { "$endDtTm", endTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFzzz") },
+                        { "$timeZone", timezone },
+                        { "$venueId", venueId }
+                    }
+
+            };
+
+        return "";
+    }
+}

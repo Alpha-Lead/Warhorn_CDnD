@@ -19,19 +19,19 @@
 		<th style="width:70%; text-align:right"><button disabled>Run Report</button></th>
 	</tr>
 	<tr>
-		<td style="align-content:top">
+		<td>
 			LIST OF REPORTS <br/>
-
-			<input type="datetime-local" />
-			<InputCheckbox @bind-Value="inputBool" />
-			<InputDate @bind-Value="inputDtTm" />
-			<InputNumber @bind-Value="inputNum" />
 		</td>
 		<td>
-			
+			<WarhornManager.Pages.rpts.SessionCreate/>
 		</td>
 	</tr>
 </table>
+
+<input type="datetime-local" />
+<InputCheckbox @bind-Value="inputBool" />
+<InputDate @bind-Value="inputDtTm" />
+<InputNumber @bind-Value="inputNum" />
 
 
 @code {
