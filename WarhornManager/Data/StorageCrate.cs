@@ -85,6 +85,16 @@ namespace WarhornManager
             this.data.Context[key] = value;
             return;
         }
+        public bool HasContext(string key)
+        {
+            if (this.data.Context == null) return false;
+            return data.Context.ContainsKey(key);
+        }
+        public List<string> ListContextKeys()
+        {
+            if (data.Context == null) return new List<string>();
+            return data.Context.Keys.ToList();
+        }
         #endregion
 
         #region "Local Storage"
